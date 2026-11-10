@@ -6,8 +6,17 @@ Pipeline deep learning untuk menghitung berapa kali bola basket menyentuh lantai
 2. **Tracking:** penyambungan deteksi mentah berdasarkan jarak posisi (bukan IoU).
 3. **Event bounce:** aturan titik terendah lintasan di zona lantai (turun lalu naik).
 
-Laporan lengkap: [`laporan/laporan_final.pdf`](laporan/laporan_final.pdf) (sumber Markdown di [`laporan/`](laporan/README.md)).
-Video demo: _isi URL YouTube Unlisted di sini_.
+## Laporan dan demo
+
+| | |
+|---|---|
+| **Laporan (PDF, 26 halaman)** | [`laporan/laporan_final.pdf`](laporan/laporan_final.pdf) |
+| **Video demonstrasi** | https://youtu.be/CK6UM8pfm84 |
+| **Penulis** | Muhammad Daffa Raihan (NIM 25917045), Deep Learning S2 - B |
+
+Hasil utama: pipeline menghitung **2.685 bounce** pada video 20 menit, dibandingkan hitungan manual **2.697** (selisih −12, APE **0,44%**). Akurasi 100% tidak diklaim; keterbatasan dibahas di Bagian 8 laporan.
+
+Sumber laporan: [`laporan/laporan_final.md`](laporan/laporan_final.md). Bangun ulang PDF dengan `python scripts/build_report_pdf.py`.
 
 ## Setup (Windows)
 

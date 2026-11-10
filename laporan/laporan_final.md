@@ -1,6 +1,6 @@
 # 1. Ringkasan Eksekutif
 
-Tugas ini meminta sebuah pipeline deep learning yang menghitung berapa kali bola basket menyentuh lantai pada video seorang pria yang menjuggling tiga bola. Kami menguraikan masalah menjadi tiga tahap, yaitu **lokalisasi bola** (detector YOLO26n yang di-fine-tune), **tracking** (asosiasi deteksi antar frame berbasis jarak), dan **deteksi event temporal** (aturan titik terendah lintasan di zona lantai).
+Tugas ini meminta sebuah pipeline deep learning yang menghitung berapa kali bola basket menyentuh lantai pada video seorang pria yang menjuggling tiga bola. Saya menguraikan masalah menjadi tiga tahap, yaitu **lokalisasi bola** (detector YOLO26n yang di-fine-tune), **tracking** (asosiasi deteksi antar frame berbasis jarak), dan **deteksi event temporal** (aturan titik terendah lintasan di zona lantai).
 
 <div class="stats">
 <div><b>0,98</b><span>F1 detector (test, E2) vs 0,80 pretrained</span></div>
@@ -11,7 +11,7 @@ Tugas ini meminta sebuah pipeline deep learning yang menghitung berapa kali bola
 
 Temuan utama:
 
-- **Detector.** Fine-tuning pada 111 gambar yang kami anotasi sendiri menaikkan F1 pada set test dari 0,80 (pretrained) menjadi 0,98.
+- **Detector.** Fine-tuning pada 111 gambar yang saya anotasi sendiri menaikkan F1 pada set test dari 0,80 (pretrained) menjadi 0,98.
 - **Tracking adalah hambatan utama, bukan detector.** Kombinasi E2 + ByteTrack hanya menemukan 19 dari 126 bounce pada 60 detik pertama (recall 0,15). Detector sebenarnya melihat bola yang menyentuh lantai, tetapi tracker berbasis IoU membuang sebagian besar deteksi itu karena bola bergerak cepat dan blur.
 - **Perbaikan.** Asosiasi berdasarkan jarak posisi pada deteksi mentah, ditambah aturan titik terendah lintasan. Dengan parameter yang dipilih hanya dari detik 0–30, hasilnya 70 dari 70 bounce benar pada detik 30–60 tanpa false positive.
 - **Validasi tambahan.** Pada dua segmen 60 detik di tengah dan akhir video (300–360 s dan 900–960 s; 135 event manual masing-masing), parameter beku memberi F1 0,985 terhadap GT asli dan 1,00 setelah koreksi GT. Skor 1,00 adalah batas atas, bukan perkiraan akurasi (Bagian 6.3 dan 8).
@@ -32,7 +32,7 @@ Temuan utama:
 | 6 | Ground truth bounce manual (seluruh video, plus segmen 0–60, 300–360, 900–960 s) | 6.1 | `data/annotations/gt_full_video.csv`, `gt_segment_*.csv` |
 | 7 | Evaluasi kuantitatif dan analisis kegagalan | 6, 7 | `artifacts/runs/Phase5_gt_eval/`, `Phase5_full_gt_eval/` |
 | 8 | Hitungan seluruh video dan verifikasi buta | 6.5, 6.6 | `artifacts/runs/Phase4_bridging/` |
-| 9 | Video demonstrasi | 6.8 | `artifacts/runs/Phase4_bridging/final_video_20min.mp4` |
+| 9 | Video demonstrasi | 6.7 | [{{DEMO_URL}}]({{DEMO_URL}}) |
 
 # 2. Definisi Masalah dan Arsitektur
 
@@ -54,8 +54,8 @@ Detector saja tidak menghitung bounce. Bounce adalah pola temporal pada lintasan
 
 ## 2.3 Pemilihan model dan trade-off
 
-- **YOLO26n sebagai detector.** Bobot pretrained tersedia, fine-tuning sederhana, keluarannya langsung kotak, dan ringan untuk CPU (sekitar 60–70 ms per gambar pada pengukuran validasi kami). Model yang lebih besar mungkin lebih akurat, tetapi detector sudah mencapai F1 0,98 setelah fine-tuning, sehingga biaya tambahan tidak dibenarkan.
-- **Mengapa bukan model temporal end-to-end** (misalnya TCN atau video transformer): data berlabel waktu kami terbatas (126 event pada GT 0–60 detik), sedangkan aturan gerak berbasis lintasan transparan dan dapat diaudit per event. Setiap keputusan dapat ditelusuri ke frame tertentu.
+- **YOLO26n sebagai detector.** Bobot pretrained tersedia, fine-tuning sederhana, keluarannya langsung kotak, dan ringan untuk CPU (sekitar 60–70 ms per gambar pada pengukuran validasi saya). Model yang lebih besar mungkin lebih akurat, tetapi detector sudah mencapai F1 0,98 setelah fine-tuning, sehingga biaya tambahan tidak dibenarkan.
+- **Mengapa bukan model temporal end-to-end** (misalnya TCN atau video transformer): data berlabel waktu saya terbatas (126 event pada GT 0–60 detik), sedangkan aturan gerak berbasis lintasan transparan dan dapat diaudit per event. Setiap keputusan dapat ditelusuri ke frame tertentu.
 - **ByteTrack** dipakai pada tahap awal karena terintegrasi dengan Ultralytics dan memanfaatkan deteksi berconfidence rendah. Kelemahannya baru terlihat kemudian (Bagian 5).
 
 ## 2.4 Arsitektur akhir
@@ -93,7 +93,7 @@ Manifes lengkap ada di `data/splits/split_manifest.csv`, disertai hash SHA-256 v
 ## 3.2 Pengambilan dan anotasi frame deteksi
 
 - Frame diambil seragam tiap 10 detik, menghasilkan **111 gambar**: train 75, val 18, test 18.
-- Anotasi dilakukan di **CVAT** (format YOLO). Kami meninjau tiap gambar dan setiap kotak kandidat, termasuk gambar tanpa bola, lalu memberi sign-off. Hasil akhir: **336 kotak, satu kelas (`basketball`)**, dengan pasangan gambar dan label yang valid.
+- Anotasi dilakukan di **CVAT** (format YOLO). Saya meninjau tiap gambar dan setiap kotak kandidat, termasuk gambar tanpa bola, lalu memberi sign-off. Hasil akhir: **336 kotak, satu kelas (`basketball`)**, dengan pasangan gambar dan label yang valid.
 - Tiga frame (val/test) memuat empat kotak. Jumlah saja tidak membuktikan duplikasi, dan tidak ada kotak yang dihapus otomatis.
 
 Bukti bahwa anotasi dikerjakan di CVAT: isi database instance CVAT lokal (Docker, `cvat/server`) pada 10 November 2026 sesuai dengan angka di atas.
@@ -128,7 +128,7 @@ Training berhenti pada epoch ke-30 karena early stopping, dengan **epoch terbaik
 
 ## 3.4 Augmentasi motion blur (E2-blur)
 
-Soal tugas meminta augmentasi motion blur, dan blur gerak memang kandidat penyebab tracker kehilangan bola (Bagian 5). Model E2 dilatih tanpa blur khusus, sehingga kami melatih model pembanding **E2-blur**.
+Soal tugas meminta augmentasi motion blur, dan blur gerak memang kandidat penyebab tracker kehilangan bola (Bagian 5). Model E2 dilatih tanpa blur khusus, sehingga saya melatih model pembanding **E2-blur**.
 
 - **Cara.** Augmentasi *offline*: untuk setiap dari 75 gambar latih dibuat satu salinan dengan motion blur (kernel garis, panjang acak 9–31 piksel, sudut acak 0–180°, seed 42), sehingga set latih menjadi 150 gambar. Label disalin tanpa perubahan. Validasi dan test tidak diubah.
 - **Pengaturan lain identik dengan E2.** Training berhenti di epoch 40 (early stopping), epoch terbaik 30.
@@ -152,21 +152,27 @@ E1 adalah YOLO26n pretrained tanpa fine-tuning (kelas bola COCO dipetakan ke kel
 | E1 (pretrained) | 0,05 | 0,815 | 0,786 | 0,800 | 44 / 10 / 12 | 0,821 | 0,612 |
 | **E2 (fine-tuned)** | 0,45 | **1,000** | **0,964** | **0,982** | 54 / 0 / 2 | **0,964** | **0,666** |
 
-Fine-tuning pada hanya 75 gambar latih sudah menghilangkan seluruh false positive pada set test. Set test kecil (18 gambar), sehingga angka ini menunjukkan arah, bukan estimasi presisi yang tinggi. Angka AP di tabel ini dihitung dengan skrip evaluasi kami (confidence 0,001); angka di Bagian 3.4 memakai `ultralytics val`, sehingga keduanya tidak untuk dibandingkan langsung.
+Fine-tuning pada hanya 75 gambar latih sudah menghilangkan seluruh false positive pada set test. Set test kecil (18 gambar), sehingga angka ini menunjukkan arah, bukan estimasi presisi yang tinggi. Angka AP di tabel ini dihitung dengan skrip evaluasi saya (confidence 0,001); angka di Bagian 3.4 memakai `ultralytics val`, sehingga keduanya tidak untuk dibandingkan langsung.
 
 ![Matriks konfusi ternormalisasi E2 pada set test](gambar/e2_confusion_matrix.png)
 
 # 5. Rekayasa Pipeline: dari Deteksi ke Hitungan
 
-Bagian ini adalah inti proyek: bagaimana keluaran detector diubah menjadi hitungan bounce. Kami melalui tiga iterasi, dan pelajaran terpenting justru datang dari diagnosis yang keliru.
+Bagian ini adalah inti proyek: bagaimana keluaran detector diubah menjadi hitungan bounce. Saya melalui tiga iterasi, dan pelajaran terpenting justru datang dari diagnosis yang keliru.
 
 ## 5.1 Iterasi 1: E2 + ByteTrack + aturan zona lantai
 
-Detector E2 dijalankan dengan ByteTrack. Sebuah bounce dinyatakan terjadi jika bola turun lalu naik, dengan sisi bawah kotak berada di zona lantai (ambang 0,75 tinggi frame). Pada 60 detik pertama (126 event GT): **19 prediksi, semuanya benar, 107 terlewat**. Presisi 1,00 tetapi recall hanya **0,15** (F1 0,26).
+Detector E2 dijalankan dengan ByteTrack. Sebuah bounce dinyatakan terjadi jika bola turun lalu naik, dengan sisi bawah kotak berada di zona lantai (ambang 0,75 tinggi frame).
+
+> **Hasil iterasi 1** (60 detik pertama, 126 event GT): **19 prediksi, semuanya benar, tetapi 107 bounce terlewat.** Presisi 1,00, recall hanya **0,15** (F1 0,26).
 
 ## 5.2 Iterasi 2: aturan gerak murni (E3)
 
-Syarat zona lantai dihilangkan, dan pembalikan arah gerak vertikal pada lintasan ByteTrack dipakai sebagai penanda bounce. E3-A menghasilkan 265 prediksi, E3-B (dengan batas adaptif) 210. Pada GT 126 event, E3-B menemukan 28 dengan **182 false positive** (presisi 0,13, recall 0,22, F1 0,17). Bola yang dipegang atau dipantulkan di tangan juga membalik arah, sehingga banyak event palsu.
+Syarat zona lantai dihilangkan, dan pembalikan arah gerak vertikal pada lintasan ByteTrack dipakai sebagai penanda bounce. E3-A menghasilkan 265 prediksi, E3-B (dengan batas adaptif) 210.
+
+> **Hasil iterasi 2** (E3-B, 126 event GT): **28 bounce ditemukan dengan 182 false positive.** Presisi 0,13, recall 0,22 (F1 0,17).
+
+Bola yang dipegang atau dipantulkan di tangan juga membalik arah, sehingga banyak event palsu.
 
 ## 5.3 Diagnosis penyebab
 
@@ -179,13 +185,13 @@ Pemeriksaan ulang yang lebih ketat:
 
 - **Deteksi mentah** (confidence 0,05) pada 126 frame GT ±6 frame menunjukkan detector **menembak** di sekitar 105 dari 107 miss. Jadi detector bukan akar masalah utama.
 - Setiap frame berisi dua sampai tiga bola. Kotak di dekat waktu GT bisa milik bola lain, sehingga "ada kotak" tidak membuktikan bahwa bola kontak terlacak. Banyaknya ID track juga bukan bukti pertukaran ID.
-- Kami lalu menandai **titik kontak per bola** pada tujuh kasus. Pada ketujuhnya bola yang memantul adalah bola terbawah di dekat kaki, dan paling rendah tepat di frame GT, sehingga timing GT terbukti benar.
+- Saya lalu menandai **titik kontak per bola** pada tujuh kasus. Pada ketujuhnya bola yang memantul adalah bola terbawah di dekat kaki, dan paling rendah tepat di frame GT, sehingga timing GT terbukti benar.
 - Pada tujuh kasus itu, detector melihat bola kontak pada sekitar 31 frame-bola (confidence ≥ 0,25), tetapi **keluaran tracker hanya memuat 9** di antaranya. Tiga kasus tidak memuat satu kotak pun di sekitar kontak.
 - Kasus yang tampak gagal karena "zona lantai" ternyata sama: titik kontaknya sekitar 0,77 tinggi frame, tetapi tracker tidak mengeluarkan frame terbawah.
 
 ![Contoh urutan frame di sekitar kontak bola, dengan grid koordinat](gambar/contoh_kontak_bola_FN02.jpg)
 
-> **Diagnosis:** bola bergerak cepat dan blur antar frame, sehingga IoU antar kotak berurutan kecil atau nol. ByteTrack gagal menyambungnya dan membuang deteksi, sehingga lintasan terpotong tepat di sekitar kontak dan aturan "turun lalu naik" tidak pernah terpenuhi. Titik kontak pada tujuh kasus itu diusulkan AI dan belum diverifikasi manusia, sehingga ini hipotesis kuat dari sampel kecil. Hipotesis itu kemudian diuji langsung oleh iterasi 3.
+> **Diagnosis:** bola bergerak cepat dan blur antar frame, sehingga IoU antar kotak berurutan turun tajam di sekitar kontak (median 0,29 dibandingkan 0,68 di frame lain; lihat Bagian 5.4). ByteTrack gagal menyambungnya dan membuang deteksi, sehingga lintasan terpotong tepat di sekitar kontak dan aturan "turun lalu naik" tidak pernah terpenuhi. Titik kontak pada tujuh kasus itu diusulkan AI dan belum diverifikasi manusia, sehingga ini hipotesis kuat dari sampel kecil. Hipotesis itu kemudian diuji langsung oleh iterasi 3.
 
 ## 5.4 Iterasi 3: asosiasi berbasis jarak pada deteksi mentah
 
@@ -198,12 +204,20 @@ jarak(d, track) <= gate * max(ukuran_track, ukuran_d) * (1 + 0,25 * (jeda - 1))
 gate = 1,5 ;  jeda maksimum = 4 frame
 ```
 
+![IoU antara kotak deteksi pada dua frame berurutan: di sekitar kontak (±4 frame dari bounce terdeteksi) dibandingkan frame lain, pada 0–60 s. Garis putus-putus: ambang IoU 0,2 (perkiraan setara match_thresh 0,8 pada jarak 1 − IoU di pengaturan bawaan ByteTrack)](gambar/iou_dekat_kontak.png)
+
+**Mengapa jarak, bukan IoU.** Di sekitar kontak bola bergerak paling cepat, sehingga tumpang tindih antar kotak berurutan turun tajam: median IoU 0,29 di sekitar kontak, dibandingkan 0,68 di frame lain; 94,6% tautan di sekitar kontak berada di bawah 0,5 dan 12,5% di bawah 0,2, sedangkan di frame lain tidak ada yang di bawah 0,2. Asosiasi berbasis jarak tidak terpengaruh karena yang dibandingkan adalah posisi pusat terhadap ukuran bola, bukan tumpang tindih kotak. Catatan: IoU ini dihitung pada tautan yang dibentuk asosiasi jarak (frame berurutan), jadi gambar ini menunjukkan seberapa jauh IoU turun, bukan keluaran ByteTrack sendiri.
+
 **Deteksi event.** Pada lintasan dengan sekurangnya lima titik, titik ke-*i* dinyatakan bounce jika:
 
 1. sisi bawah kotak ≥ 0,65 × tinggi frame (dekat lantai; ini yang menolak bola yang dipegang atau ditangkap di tangan),
 2. dalam jendela ±5 frame, posisi vertikal turun ≥ 15 piksel sebelum titik itu dan naik ≥ 15 piksel sesudahnya,
 3. titik itu adalah posisi vertikal terendah (koordinat y maksimum) dalam jendela,
 4. event dalam 0,2 detik dari event lain pada lintasan yang sama digabung (diambil yang terendah).
+
+![Lintasan tiga bola selama sekitar 4,6 detik (7–11 s): posisi sisi bawah kotak terhadap waktu, zona lantai, bounce yang terdeteksi, satu pembalikan di atas zona lantai yang ditolak, dan GT manual](gambar/lintasan_aturan_event.png)
+
+Gambar di atas memperlihatkan aturan bekerja pada data nyata. Setiap lekukan ke dalam zona lantai menjadi satu bounce: sembilan bounce dari tiga bola pada jendela ini, dan kesembilannya cocok dengan GT manual dalam ±3 frame. Pembalikan arah di atas zona lantai (tanda ×, sekitar 7,4 s, sisi bawah kotak hanya 0,47 tinggi frame) ditolak. Pada 60 detik pertama hanya ada satu pembalikan seperti itu, jadi aturan lantai jarang aktif pada video ini; fungsi utamanya adalah mencegah pantulan di tangan dihitung bila terjadi.
 
 **Protokol evaluasi yang adil.** Parameter dicari dengan grid 54 konfigurasi (gate, ambang lantai, minimum turun/naik, jeda maksimum) **hanya pada detik 0–30 (dev)**. Detik 30–60 (holdout) dievaluasi sekali. Seluruh 54 konfigurasi memberi F1 dev yang sama (0,98), sehingga hasilnya tidak sensitif terhadap pilihan parameter. Parameter terpilih: gate 1,5; lantai 0,65; minimum 15 piksel; jeda maksimum 4.
 
@@ -221,7 +235,7 @@ Event bounce tidak dianotasi di CVAT. Waktu kontak ditandai dengan alat `scripts
 
 - **0–60 detik:** 126 event (GT v2). Versi awal (46 event, tidak lengkap) tidak sebanding dengan v2, sehingga semua evaluasi akhir memakai v2.
 - **Dua segmen tambahan di video penuh:** 300–360 s dan 900–960 s, masing-masing 135 event, dianotasi dengan alat dan aturan yang sama; alat anotasi tidak menampilkan prediksi model.
-- **Seluruh video (20 menit):** ditandai dengan `scripts/annotate_full.py` (tombol B saat bola menyentuh lantai; video diputar dengan kecepatan yang dipilih, dan waktu tanda dikurangi kompensasi jeda reaksi 150 ms saat memutar). Hasilnya 2.702 tanda (`gt_full_video.csv`). Penganotasi kemudian menyatakan ada 5 tanda berlebih, sehingga **total acuan 2.697** (`gt_full_video_total.json`); tanda yang berlebih tidak diidentifikasi per event, sehingga berkas CSV tetap 2.702 baris. Alat anotasi tidak menampilkan prediksi model.
+- **Seluruh video (20 menit):** ditandai dengan `scripts/annotate_full.py` (tombol B saat bola menyentuh lantai; video diputar dengan kecepatan yang dipilih, dan waktu tanda dikurangi kompensasi jeda reaksi 150 ms saat memutar). Hasilnya 2.702 tanda (`gt_full_video.csv`). Penganotasi kemudian menyatakan ada 5 tanda berlebih, sehingga **total acuan 2.697** (`gt_full_video_total.json`); tiga di antaranya teridentifikasi saat analisis kegagalan sebagai tanda ganda (dua tanda berjarak 2–3 frame untuk satu bounce, Bagian 7.3) dan dua lainnya belum teridentifikasi, sehingga berkas CSV tetap 2.702 baris. Alat anotasi tidak menampilkan prediksi model.
 - **Pencocokan** prediksi dengan GT dilakukan satu-ke-satu dengan toleransi **±0,1 detik** (±3 frame) pada GT yang ditandai dengan video dijeda. Pada GT seluruh video (ditandai saat memutar) pencocokan memakai toleransi ±0,2 detik setelah menghilangkan geseran jeda reaksi yang diperkirakan otomatis.
 - Seluruh GT dianotasi satu orang dan **belum melalui pemeriksaan kedua**.
 
@@ -249,7 +263,7 @@ Untuk 60 detik penuh: 124 prediksi vs 126 GT, **kesalahan hitungan absolut (APE)
 
 Cara membaca:
 
-- **Baris "GT asli" adalah ukuran yang lebih jujur.** Setelah membandingkan dengan prediksi, selisih diperiksa lewat klip lambat (0,25×). Pada empat selisih yang diperiksa, kami menilai GT-nyalah yang keliru, lalu GT dikoreksi: satu event digeser dan satu event dipecah menjadi dua di 300–360 s, serta dua event digeser di 900–960 s. Berkas asli disimpan sebagai `*.backup-before-correction.csv`.
+- **Baris "GT asli" adalah ukuran yang lebih jujur.** Setelah membandingkan dengan prediksi, selisih diperiksa lewat klip lambat (0,25×). Pada empat selisih yang diperiksa, saya menilai GT-nyalah yang keliru, lalu GT dikoreksi: satu event digeser dan satu event dipecah menjadi dua di 300–360 s, serta dua event digeser di 900–960 s. Berkas asli disimpan sebagai `*.backup-before-correction.csv`.
 - **Baris "setelah koreksi" adalah batas atas.** Frame koreksi diambil dari frame prediksi, dan hanya titik yang berbeda yang diperiksa ulang. Pemeriksaan silang dengan GT seluruh video yang independen mendukung tiga dari empat koreksi, tetapi **tidak** mendukung koreksi di sekitar 313 s (Bagian 7.2). Bila koreksi itu dibatalkan, segmen 300–360 s menjadi TP 133, FP 2, FN 1 (F1 0,989), bukan 135/0/0.
 - **APE 0% tidak berarti tanpa kesalahan:** pada baris GT asli, 2 FP dan 2 FN saling meniadakan. Selalu baca bersama TP/FP/FN.
 - Bug pembulatan di skrip evaluasi (selisih tepat 3 frame ditolak karena galat float) sempat menambah dua pasang FP/FN palsu di segmen 900–960; sudah diperbaiki dengan margin 1e-6. Angka di tabel adalah angka setelah perbaikan itu.
@@ -270,7 +284,7 @@ Metode dan parameter identik; hanya bobot detector yang diganti.
 | | GT dikoreksi | E2 | 135 | 0 | 0 | 1,000 |
 | | | E2-blur | 135 | 0 | 0 | 1,000 |
 
-Pada 900–960 s kedua model memberi event yang sama persis. Satu-satunya perbedaan ada di sekitar 313,2–313,5 s (segmen 300–360): E2-blur mengeluarkan satu event di tempat E2 mengeluarkan dua, yang menurut penilaian kami adalah dua bounce. Karena koreksi GT diambil dari prediksi E2, perbandingan dengan GT dikoreksi condong ke E2; perbandingan dengan GT asli lebih adil, dan di sana selisihnya hanya satu FP. Kesimpulan: **augmentasi motion blur tidak memberi perbedaan yang dapat dibuktikan pada hitungan bounce**, dan selisih satu event tidak dapat dibedakan dari kebisingan.
+Pada 900–960 s kedua model memberi event yang sama persis. Satu-satunya perbedaan ada di sekitar 313,2–313,5 s (segmen 300–360): E2-blur mengeluarkan satu event di tempat E2 mengeluarkan dua, yang menurut penilaian saya adalah dua bounce. Karena koreksi GT diambil dari prediksi E2, perbandingan dengan GT dikoreksi condong ke E2; perbandingan dengan GT asli lebih adil, dan di sana selisihnya hanya satu FP. Kesimpulan: **augmentasi motion blur tidak memberi perbedaan yang dapat dibuktikan pada hitungan bounce**, dan selisih satu event tidak dapat dibedakan dari kebisingan.
 
 ## 6.5 Seluruh video 20 menit dibandingkan dengan GT manual
 
@@ -300,12 +314,12 @@ Parameter dibekukan dari dev (detik 0–30), lalu dijalankan pada seluruh 36.003
 Tabel per menit dihitung dari 2.702 tanda (5 koreksi tidak dapat diletakkan pada menit tertentu) dan setelah menghilangkan geseran jeda reaksi.
 
 - **Per menit.** 15 dari 20 menit berselisih paling banyak 1 bounce; selisih terbesar −3 (menit 18). Pipeline lebih rendah pada 14 menit, lebih tinggi pada 3 menit, dan sama pada 3 menit. Jadi pipeline cenderung menghitung **sedikit kurang**, bukan berlebih.
-- **Per event** (toleransi ±0,2 s setelah koreksi geseran): TP 2.684, FP 1, FN 18; presisi 0,9996, recall 0,9933, F1 0,9965. Daftar 19 error ada di Bagian 7.3.
+- **Per event** (toleransi ±0,2 s setelah koreksi geseran): TP 2.684, FP 1, FN 18; presisi 0,9996, recall 0,9933, F1 0,9965. Daftar 19 error dan penyebabnya ada di Bagian 7.3; tiga dari 18 FN ternyata tanda ganda di GT, sehingga bounce yang benar-benar terlewat berjumlah 15.
 - **Cara membaca angka per event.** Geseran jeda reaksi tidak konstan sepanjang sesi anotasi: perkiraan global −0,165 s (GT lebih awal sekitar 5 frame), tetapi di sekitar 955 s geseran lokalnya sekitar +8 frame. Karena bounce muncul dengan ritme teratur (sekitar 13 frame), GT yang bergeser satu siklus dapat tercocokkan dengan event tetangganya: jumlahnya sama, pasangannya bisa keliru. Karena itu **total dan angka per menit yang paling dapat dipercaya**; F1 per event hanya perkiraan.
 
 ## 6.6 Verifikasi buta oleh manusia (menit 2–20)
 
-Sebelum GT seluruh video tersedia, kami membuat 30 klip pendek yang diacak, tanpa kotak model, dengan bingkai merah di frame target. Kami menjawab "ada", "tidak", atau "ragu" lewat antarmuka klik tanpa mengetahui klip mana yang prediksi dan mana yang kontrol.
+Sebelum GT seluruh video tersedia, saya membuat 30 klip pendek yang diacak, tanpa kotak model, dengan bingkai merah di frame target. Saya menjawab "ada", "tidak", atau "ragu" lewat antarmuka klik tanpa mengetahui klip mana yang prediksi dan mana yang kontrol.
 
 | Kelompok klip | Jawaban | Arti |
 |---|---|---|
@@ -314,13 +328,9 @@ Sebelum GT seluruh video tersedia, kami membuat 30 klip pendek yang diacak, tanp
 
 Dengan sampel 20, batas bawah presisi (kepercayaan 95%) sekitar 0,84. Dua bounce terlewat ada di sekitar detik 751,9 dan 989,1; keduanya muncul pula sebagai FN pada perbandingan dengan GT seluruh video (751,6 s dan 988,8 s; Bagian 7.3), sehingga dua metode yang berbeda menunjuk titik yang sama. Recall tidak dapat dihitung dari sampel ini.
 
-## 6.7 Uji pada video lain (tanpa GT)
+## 6.7 Video demonstrasi
 
-Pipeline beku dijalankan pada `videotesting.mp4` (162 detik): 78 event, 28,9 per menit, deteksi muncul pada 2.799 dari 4.858 frame. Tanpa GT, ini hanya hitungan; angkanya jauh berbeda dari video utama (sekitar 135 per menit), dan kami **tidak** mengklaim generalisasi dari hasil ini.
-
-## 6.8 Video demonstrasi
-
-Video beranotasi untuk seluruh 20 menit (960×540, 30 fps): `artifacts/runs/Phase4_bridging/final_video_20min.mp4`. Isinya kotak bola dan ID, jejak lintasan, penanda "BOUNCE +1" di titik kontak, penghitung kumulatif, dan waktu. Hitungan akhir pada frame terakhir: **2.685**.
+Video beranotasi untuk seluruh 20 menit (960×540, 30 fps) tersedia di YouTube (Unlisted): [{{DEMO_URL}}]({{DEMO_URL}}). Isinya kotak bola dan ID, jejak lintasan, penanda "BOUNCE +1" di titik kontak, penghitung kumulatif, dan waktu. Hitungan akhir pada frame terakhir: **2.685**.
 
 ![Cuplikan video demonstrasi: kotak bola, ID track, jejak, dan penghitung](gambar/hasil_overlay_tracking_counter.jpg)
 
@@ -351,51 +361,52 @@ Selisih antara GT asli dan prediksi pada dua segmen ini semula diperiksa lewat k
 
 ## 7.3 Seluruh video: 19 error terhadap GT manual
 
-Perbandingan seluruh video (Bagian 6.5) menghasilkan 18 FN (bounce di GT, tidak dihitung pipeline) dan 1 FP. Waktu = frame ÷ 30; klip lambat untuk setiap titik ada di `artifacts/runs/Phase5_full_gt_eval/clips/`.
+Perbandingan seluruh video (Bagian 6.5) menghasilkan 18 FN (bounce di GT, tidak dihitung pipeline) dan 1 FP. Penyebab tiap FN dianalisis dari data mentah: deteksi E2 per frame dan lintasan hasil asosiasi (`scripts/diagnose_full_errors.py`, keluaran `fn_diagnosis.csv`). Ini analisis dari data, bukan penilaian visual. Waktu = frame ÷ 30; klip lambat tiap titik ada di `artifacts/runs/Phase5_full_gt_eval/clips/`.
 
-| # | Jenis | Waktu | Keterangan |
+| Penyebab | Jumlah FN | Keterangan |
+|---|---|---|
+| Lintasan terpecah tepat di kontak | 13 | Lintasan lama berakhir dan lintasan baru dimulai di frame kontak |
+| Tanda ganda di GT (bukan bounce terlewat) | 3 | Dua tanda GT berjarak 2–3 frame untuk satu bounce; pipeline punya satu event |
+| Awal video | 1 | Bola keluar dari tepi frame; tidak ada titik sesudah kontak |
+| Akhir video | 1 | Bounce terakhir tepat di akhir rekaman; tidak ada titik sesudah kontak |
+
+Rincian per titik:
+
+| # | Jenis | Waktu | Penyebab |
 |---|---|---|---|
-| 1 | FN | 2,900 s (0:02) | Awal video; bola setengah keluar dari tepi kiri frame. Sama dengan kasus GT-0001 pada Bagian 7.1. |
-| 2 | FN | 213,100 s (3:33) | Belum didiagnosis |
+| 1 | FN | 2,900 s (0:02) | Awal video: bola di tepi kiri frame, lintasan berakhir di kontak (sama dengan GT-0001, Bagian 7.1) |
+| 2 | FN | 213,100 s (3:33) | Tanda ganda di GT (frame 6391 dan 6393); pipeline punya satu event (6396) |
 | 3 | FP | 313,533 s (5:13) | Kemungkinan hitung ganda satu bounce; lihat Bagian 7.2, kasus #4 |
-| 4 | FN | 370,600 s (6:10) | Belum didiagnosis |
-| 5 | FN | 490,467 s (8:10) | Belum didiagnosis |
-| 6 | FN | 596,733 s (9:56) | Belum didiagnosis |
-| 7 | FN | 685,567 s (11:25) | Belum didiagnosis |
-| 8 | FN | 751,633 s (12:31) | Belum didiagnosis; sama dengan klip V09 pada verifikasi buta (Bagian 6.6) |
-| 9 | FN | 800,467 s (13:20) | Belum didiagnosis |
-| 10 | FN | 829,633 s (13:49) | Belum didiagnosis |
-| 11 | FN | 844,600 s (14:04) | Belum didiagnosis |
-| 12 | FN | 872,900 s (14:32) | Belum didiagnosis |
-| 13 | FN | 988,833 s (16:28) | Belum didiagnosis; sama dengan klip V02 pada verifikasi buta (Bagian 6.6) |
-| 14 | FN | 1.057,967 s (17:37) | Belum didiagnosis |
-| 15 | FN | 1.071,300 s (17:51) | Belum didiagnosis; berurutan dengan #16 (jarak 17 frame) |
-| 16 | FN | 1.071,867 s (17:51) | Belum didiagnosis; berurutan dengan #15 |
-| 17 | FN | 1.120,800 s (18:40) | Belum didiagnosis |
-| 18 | FN | 1.131,500 s (18:51) | Belum didiagnosis |
-| 19 | FN | 1.199,867 s (19:59) | Ujung video (berakhir 1.200,1 s); bounce terakhir berada sangat dekat dengan akhir video. Dugaan, belum diverifikasi: aturan deteksi membutuhkan jendela ±5 frame di sekitar titik terendah. |
+| 4 | FN | 370,600 s (6:10) | Lintasan terpecah di kontak (ID 10 menjadi 54) |
+| 5 | FN | 490,467 s (8:10) | Lintasan terpecah di kontak (ID 54 menjadi 62) |
+| 6 | FN | 596,733 s (9:56) | Lintasan terpecah di kontak (ID 43 menjadi 70) |
+| 7 | FN | 685,567 s (11:25) | Tanda ganda di GT (frame 20564 dan 20567); pipeline punya satu event (20569) |
+| 8 | FN | 751,633 s (12:31) | Lintasan terpecah di kontak (ID 77 menjadi 80); sama dengan klip V09 pada verifikasi buta (Bagian 6.6) |
+| 9 | FN | 800,467 s (13:20) | Lintasan terpecah di kontak (ID 1 menjadi 82) |
+| 10 | FN | 829,633 s (13:49) | Lintasan terpecah di kontak (ID 82 menjadi 84) |
+| 11 | FN | 844,600 s (14:04) | Lintasan terpecah di kontak (ID 80 menjadi 86) |
+| 12 | FN | 872,900 s (14:32) | Lintasan terpecah di kontak (ID 70 menjadi 92) |
+| 13 | FN | 988,833 s (16:28) | Lintasan terpecah di kontak (ID 84 menjadi 103); sama dengan klip V02 pada verifikasi buta (Bagian 6.6) |
+| 14 | FN | 1.057,967 s (17:37) | Lintasan terpecah di kontak (ID 103 menjadi 109) |
+| 15 | FN | 1.071,300 s (17:51) | Lintasan terpecah di kontak (ID 109 menjadi 111) |
+| 16 | FN | 1.071,867 s (17:51) | Tanda ganda di GT (frame 32154 dan 32156); pipeline punya satu event (32159) |
+| 17 | FN | 1.120,800 s (18:40) | Lintasan terpecah di kontak (ID 86 menjadi 114) |
+| 18 | FN | 1.131,500 s (18:51) | Lintasan terpecah di kontak (ID 114 menjadi 117) |
+| 19 | FN | 1.199,867 s (19:59) | Akhir video (rekaman berakhir 1.200,1 s): tidak ada titik sesudah kontak |
 
-**Penyebab sebagian besar FN belum didiagnosis.** Dua penjelasan yang paling mungkin, berdasarkan Bagian 5.3, adalah (a) deteksi bola kontak terputus oleh blur gerak sehingga lintasan terpotong tepat di kontak, dan (b) bola kontak tertutup tubuh atau berada di tepi frame. **Rencana perbaikan:** periksa deteksi mentah dan lintasan di sekitar tiap titik; bila detector tidak menembak, tambahkan data latih atau augmentasi blur lokal pada bola; bila lintasan terpotong, longgarkan jeda maksimum asosiasi atau turunkan ambang gerak minimum. Karena GT seluruh video memiliki ketidakpastian sekitar ±0,2% (Bagian 8), sebagian FN ini dapat berupa kesalahan GT, bukan kegagalan model.
+**Mekanisme "lintasan terpecah".** Aturan event membutuhkan titik sebelum dan sesudah titik terendah dalam jendela ±5 frame. Pada event yang benar, lintasan memiliki median 5 titik di tiap sisi. Pada 13 FN ini, satu lintasan berakhir tepat di titik terendah (hanya titik sebelum kontak) dan lintasan baru dimulai pada frame yang sama atau satu frame sebelumnya (hanya titik sesudah kontak), sehingga tak satu pun memiliki pola "turun lalu naik". Jarak antara titik akhir lintasan lama dan titik awal lintasan baru hanya 10–38 piksel (bola sekitar 80 piksel), sehingga pada frame kontak ada dua deteksi berdekatan: satu menyambung ke lintasan lama dan satu memulai lintasan baru. Kecepatan vertikal menjelang kontak pada kasus ini tidak lebih tinggi daripada event biasa (median 34,8 dibandingkan 47,3 piksel per frame), sehingga dugaan bahwa prediksi kecepatan konstan melenceng karena terlalu cepat tidak didukung data. Penyebab munculnya deteksi kedua (misalnya pantulan bola di lantai kayu atau kotak ganda saat bola penyok) belum diperiksa pada frame dan masih dugaan.
 
-# 8. Diskusi: Seberapa Akurat Hasil Ini?
+**Rencana perbaikan.** Sambungkan lintasan yang berakhir dan dimulai pada frame yang sama dalam jarak kurang dari ukuran bola, atau tekan deteksi ganda yang berdekatan di zona lantai sebelum asosiasi. Perbaikan ini belum diterapkan: parameter dan metode dibekukan agar hasil di Bagian 6 tetap dapat dibandingkan. Karena 3 dari 18 FN adalah tanda ganda di GT, bounce yang benar-benar terlewat berjumlah 15, sekitar 0,6% dari sekitar 2.700.
 
-**Akurasi 100% tidak dapat diklaim, tetapi galatnya sekarang terukur: sekitar 0,4–0,6% pada hitungan total.** Pipeline menghitung 2.685 bounce, GT manual 2.697 (APE 0,44%) atau 2.702 tanda mentah (APE 0,63%). Alasan angka 100% tidak dapat diklaim:
+# 8. Keterbatasan dan Integritas Eksperimen
 
-1. **GT sendiri tidak pasti.** GT seluruh video ditandai satu orang secara langsung, dan penganotasi mengoreksi 5 tanda berlebih (2.702 menjadi 2.697). Karena itu selisih di bawah sekitar 0,2% tidak dapat dibedakan dari galat GT.
-2. **Ada bounce yang benar-benar terlewat.** 18 FN berbanding 1 FP, dan pipeline lebih rendah pada 14 dari 20 menit. Dua di antaranya juga ditemukan verifikasi buta yang terpisah. Pipeline cenderung menghitung kurang, bukan berlebih.
-3. **F1 per event hanya perkiraan.** Geseran jeda reaksi tidak konstan dan ritme bounce yang teratur dapat membuat pasangan event bergeser satu siklus (Bagian 6.5). Total dan angka per menit lebih dapat dipercaya.
-4. **Evaluasi seluruh video bukan uji data baru.** Detector dilatih pada 75 gambar dari video ini dan pipeline dikembangkan dengan melihat 0–60 detik. Hanya rentang 630–1.050 s (validasi, test, dan penyangga) yang tidak mengandung gambar latih detector.
-5. **Satu video, satu kamera.** Aturan lantai (0,65 tinggi frame) hanya sah untuk kamera tetap seperti ini. Hasil pada video lain (Bagian 6.7) hanya hitungan tanpa GT.
-
-**Yang dapat dinyatakan secara jujur:** pada video 20 menit ini, hitungan pipeline berbeda sekitar 0,4–0,6% dari hitungan manual dan cenderung sedikit kurang; kemampuan umum pada video lain belum teruji.
-
-## 8.1 Integritas eksperimen dan kemungkinan bias
+Hal-hal berikut perlu dibaca bersama hasil di Bagian 6.
 
 1. **Tumpang tindih data latih.** Enam dari 75 gambar latih detector diambil pada detik 5, 15, 25, 35, 45, 55, di dalam jendela evaluasi bounce 0–60 detik. Pengaruhnya pada metrik bounce kemungkinan kecil, tetapi tetap tumpang tindih.
 2. **Holdout tidak sepenuhnya buta.** Parameter hanya disetel pada detik 0–30, tetapi hipotesis penyebab kegagalan dibentuk dengan melihat frame dari seluruh 60 detik, termasuk 30–60.
-3. **Satu penganotasi.** Semua GT bounce dianotasi satu orang tanpa pemeriksaan kedua. GT seluruh video ditandai saat video diputar dengan kompensasi jeda reaksi 150 ms, dan total dikoreksi −5 tanda tanpa identifikasi event.
+3. **Satu penganotasi.** Semua GT bounce dianotasi satu orang tanpa pemeriksaan kedua. GT seluruh video ditandai saat video diputar dengan kompensasi jeda reaksi 150 ms, dan total dikoreksi −5 tanda (tiga teridentifikasi sebagai tanda ganda, dua belum). Selisih 2.702 dan 2.697 menunjukkan ketidakpastian GT sekitar 0,2%, sehingga selisih hitungan di bawah itu tidak dapat dibedakan dari galat GT.
 4. **Titik kontak diagnostik.** Pada tujuh kasus, titik kontak berasal dari usulan AI dan belum diverifikasi manusia. Validasi manusia di luar 60 detik pertama adalah verifikasi buta (Bagian 6.6), dua segmen GT (Bagian 6.3), dan GT seluruh video (Bagian 6.5).
-5. **Dua dugaan penyebab awal ternyata keliru** (fragmentasi ID, detector dropout). Kami mempertahankannya karena ini pelajaran metodologis: kesimpulan dari heuristik atau pemeriksaan visual sekilas harus diuji dengan data mentah sebelum membangun perbaikan.
+5. **Dua dugaan penyebab awal ternyata keliru** (fragmentasi ID, detector dropout). Saya mempertahankannya karena ini pelajaran metodologis: kesimpulan dari heuristik atau pemeriksaan visual sekilas harus diuji dengan data mentah sebelum membangun perbaikan.
 6. **Sampel verifikasi kecil.** 30 klip memberi rentang ketidakpastian yang lebar.
 7. **Koreksi GT satu arah.** Empat selisih pada dua segmen tambahan diputuskan sebagai kesalahan GT dan dikoreksi ke arah prediksi, dengan frame koreksi dari prediksi. GT seluruh video yang independen mendukung tiga koreksi, tetapi tidak yang keempat (313 s, Bagian 7.2). Karena itu angka "setelah koreksi" (Bagian 6.3 dan 6.4) tidak boleh dipakai sebagai ukuran akurasi; pakai angka "GT asli" atau perbandingan seluruh video.
 8. **Detector dan segmen evaluasi.** Segmen 300–360 s berada dalam rentang latih detector; segmen 900–960 s dan rentang 630–1.050 s tidak mengandung gambar latih.
@@ -425,8 +436,8 @@ Perbandingan seluruh video (Bagian 6.5) menghasilkan 18 FN (bounce di GT, tidak 
 | 3. Rekayasa pipeline: centroid tracking, deteksi puncak, menolak tangkapan tangan | Terpenuhi | Bagian 5.4 |
 | 4. Performa kuantitatif: GT manual, bandingkan prediksi, hitung error/APE | Terpenuhi, dengan catatan | GT manual seluruh video (2.702 tanda, acuan 2.697): APE 0,44%; GT satu penganotasi tanpa pemeriksaan kedua (Bagian 6.5 dan 8) |
 | 5. Analisis kegagalan per timestamp | Sebagian | Seluruh 19 error seluruh video terdaftar dengan timestamp (Bagian 7.3); penyebab sebagian besar belum didiagnosis |
-| Video demonstrasi | Terpenuhi (tautan perlu diisi) | `artifacts/runs/Phase4_bridging/final_video_20min.mp4` |
-| Kode sumber dengan README | Terpenuhi | Repositori atau ZIP; lihat Lampiran B |
+| Video demonstrasi | Terpenuhi | [{{DEMO_URL}}]({{DEMO_URL}}) |
+| Kode sumber dengan README | Terpenuhi | https://github.com/Dffarhn2004/basketball-jugling-detector; cara menjalankan di README dan Lampiran B |
 
 # Lampiran B. Cara Mereproduksi
 
@@ -488,5 +499,4 @@ python scripts/build_report_pdf.py "<url-video-demo>"
 | `artifacts/runs/Phase4_bridging/` | Metode akhir, event, video, klip verifikasi |
 | `artifacts/runs/Phase5_gt_eval/` | Evaluasi pada segmen GT (`eval_vs_gt.json`, `errors.csv`, klip error) |
 | `artifacts/runs/Phase5_blur/` | Event dan evaluasi E2-blur |
-| `artifacts/runs/Phase5_test_video/` | Hasil pada `videotesting.mp4` (tanpa GT) |
 | `scripts/` | Skrip eksperimen, evaluasi, dan pembuat laporan |

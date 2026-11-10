@@ -7,5 +7,19 @@
  "prediksi_pipeline": 2685,
  "selisih": -12,
  "APE_persen": 0.44,
- "catatan": "Total acuan = 2.702 tanda dikurangi 5 tanda berlebih yang dikoreksi penganotasi (dinyatakan 11 Nov 2026). Tanda yang berlebih tidak diidentifikasi per event, sehingga berkas CSV tetap 2.702 baris dan tabel per menit serta daftar FP/FN dihitung dari 2.702 tanda."
+ "catatan": "Total acuan = 2.702 tanda dikurangi 5 tanda berlebih yang dikoreksi penganotasi (dinyatakan 11 Nov 2026). Tiga di antaranya teridentifikasi sebagai tanda ganda (selisih 2-3 frame) di frame 6391/6393, 20564/20567, 32154/32156; dua lainnya belum teridentifikasi. Berkas CSV tetap 2.702 baris; tabel per menit dan daftar FP/FN dihitung dari 2.702 tanda.",
+ "tanda_ganda_teridentifikasi": [
+  [
+   6391,
+   6393
+  ],
+  [
+   20564,
+   20567
+  ],
+  [
+   32154,
+   32156
+  ]
+ ]
 }
