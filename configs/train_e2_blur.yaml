@@ -1,0 +1,6 @@
+path: data/cvat_phase2_reviewed/final_blur
+train: train/obj_train_data
+val: val/obj_train_data
+test: test/obj_train_data
+names:
+  0: basketball

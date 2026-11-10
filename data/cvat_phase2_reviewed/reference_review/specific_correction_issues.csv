@@ -1,0 +1,6 @@
+time_s,file,issue,visual_evidence,recommended_human_correction
+175,phase2_annotation_v1_005250,duplicate,candidate indices 1 and 2 overlap lower bouncing ball (~IoU 0.681); center ball not labeled,remove duplicate lower box; add center basketball; visually verify all 3
+585,phase2_annotation_v1_017550,duplicate,candidate indices 0 and 1 overlap same lower ball (~IoU 0.609); both upper basketballs missing,retain one correct lower box; add upper two basketballs
+775,phase2_annotation_v1_023250,false_positive,"tiny candidate at x≈481–502, y≈555–581 corresponds to floor/background, not basketball",delete tiny floor box and add missing real basketballs
+865,phase2_annotation_v1_025950,duplicate_and_false_positive,indices 1 and 2 overlap the same upper-left ball (~IoU 0.589); index 3 is small floor/background,remove spurious duplicate and small floor box; add missing middle ball
+1075,phase2_annotation_v1_032250,false_positive,"index 2 is tiny rectangular patch at floor x≈419–464, y≈554–583",remove floor candidate and add missing middle basketball

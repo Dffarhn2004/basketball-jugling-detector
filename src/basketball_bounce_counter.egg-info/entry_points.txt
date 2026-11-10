@@ -1,0 +1,2 @@
+[console_scripts]
+bounce-counter = bounce_counter.cli:main

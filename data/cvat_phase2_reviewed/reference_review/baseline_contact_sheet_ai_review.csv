@@ -1,0 +1,31 @@
+frame_idx,time_s,visible_balls_ai_estimate,detected_boxes_from_tracks,minimum_missed_estimate,ai_confidence,ai_note,manual_review_status
+0,0,0,0,0,clear,scene empty before player enters,pending_human
+60,2,0,0,0,clear,scene empty before player enters,pending_human
+120,4,,0,,uncertain,"player partly off-screen; balls partly occluded, review original clip",pending_human
+180,6,2,1,1,clear,two visible basketballs before full 3-ball routine,pending_human
+240,8,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+300,10,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+360,12,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+420,14,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+480,16,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+540,18,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+600,20,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+660,22,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+720,24,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+780,26,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+840,28,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+900,30,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+960,32,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+1020,34,3,2,1,likely,three basketballs visible at this sampled instant,pending_human
+1080,36,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1140,38,3,2,1,likely,three basketballs visible at this sampled instant,pending_human
+1200,40,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+1260,42,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1320,44,3,1,2,likely,three basketballs visible at this sampled instant,pending_human
+1380,46,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1440,48,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1500,50,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1560,52,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1620,54,3,2,1,likely,three basketballs visible at this sampled instant,pending_human
+1680,56,3,0,3,likely,three basketballs visible at this sampled instant,pending_human
+1740,58,3,0,3,likely,three basketballs visible at this sampled instant,pending_human

@@ -1,0 +1,11 @@
+{
+ "video": "videofull.mp4",
+ "durasi_s": 1200.1,
+ "tanda_di_berkas_gt_full_video_csv": 2702,
+ "koreksi_penganotasi": -5,
+ "total_gt_acuan": 2697,
+ "prediksi_pipeline": 2685,
+ "selisih": -12,
+ "APE_persen": 0.44,
+ "catatan": "Total acuan = 2.702 tanda dikurangi 5 tanda berlebih yang dikoreksi penganotasi (dinyatakan 11 Nov 2026). Tanda yang berlebih tidak diidentifikasi per event, sehingga berkas CSV tetap 2.702 baris dan tabel per menit serta daftar FP/FN dihitung dari 2.702 tanda."
+}

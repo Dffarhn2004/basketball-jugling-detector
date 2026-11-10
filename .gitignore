@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pt
+*.onnx
+data/raw/*
+data/detection/images/
+artifacts/runs/
+artifacts/models/
+artifacts/videos/
+artifacts/reports/
+!data/raw/.gitkeep
+!artifacts/.gitkeep
+
+# Berkas besar / paket review
+*.mp4
+*.zip
+nul

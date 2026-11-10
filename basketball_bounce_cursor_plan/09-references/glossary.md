@@ -1,0 +1,24 @@
+# Glossary
+
+- **Bounce event:** satu kejadian kontak satu bola dengan lantai, termasuk jika contact berlangsung beberapa frame.
+- **Detection:** lokasi bola pada satu frame, biasanya bounding box dan confidence.
+- **Tracking:** asosiasi detection antarframe ke suatu lintasan/ID.
+- **Tracker ID switch:** identitas objek berganti walaupun bola sebenarnya sama.
+- **Occlusion:** bola tertutup sebagian/seluruhnya oleh objek lain.
+- **Motion blur:** pergerakan cepat memanjangkan tampilan bola selama exposure.
+- **Trajectory:** urutan posisi bola terhadap waktu.
+- **Floor ROI:** daerah spasial yang memungkinkan bola melakukan kontak lantai.
+- **State machine:** aturan perpindahan state untuk mengonfirmasi kejadian dari observasi gerak.
+- **Hysteresis:** aturan masuk/keluar status memakai ambang berbeda agar tidak flip karena noise.
+- **Fine-tuning:** pembaruan parameter bobot pretrained model dengan data khusus tugas.
+- **Pipeline tuning:** pengaturan parameter inference/tracking/state machine tanpa training weights.
+- **Ground truth:** label kejadian kontak yang diverifikasi manusia.
+- **TP:** predicted event cocok dengan satu GT event.
+- **FP:** predicted event tidak cocok dengan GT mana pun.
+- **FN:** GT event tidak tertangkap model.
+- **Event-level precision:** TP / (TP + FP).
+- **Event-level recall:** TP / (TP + FN).
+- **Event-level F1:** harmonic mean precision-recall.
+- **APE:** |predicted_count − true_count| / true_count ×100% (jika true_count > 0).
+- **Temporal leakage:** frame berdekatan/trajektori sama masuk split berbeda sehingga evaluasi terlalu optimistis.
+- **PTS:** presentation timestamp asli frame dalam media.

@@ -1,0 +1,4 @@
+# Phase 0 placeholder; detector is not executed yet.
+model: yolo26n.pt
+device: cpu
+seed: 42

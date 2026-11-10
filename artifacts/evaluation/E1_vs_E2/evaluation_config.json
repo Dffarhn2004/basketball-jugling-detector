@@ -1,0 +1,11 @@
+{
+  "imgsz": 640,
+  "floor_conf": 0.001,
+  "match_iou": 0.5,
+  "threshold_selection": "validation F1 grid 0.05..0.95",
+  "ap_iou": "0.50:0.05:0.95",
+  "device": "cpu",
+  "batch": 1,
+  "nms": "Ultralytics predict defaults",
+  "python": "3.12.10"
+}

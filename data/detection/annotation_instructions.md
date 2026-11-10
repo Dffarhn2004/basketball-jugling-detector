@@ -1,0 +1,1 @@
+Candidate labels map COCO class 32 sports ball to dataset class 0 basketball. Human must correct, approve, or reject every box; candidate_status is never ground truth. Import images/labels into CVAT as YOLO 1.1, review, then export YOLO and replace only after versioning.

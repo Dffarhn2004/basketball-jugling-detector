@@ -1,0 +1,15 @@
+image,gt,pred,tp,fp,fn
+phase2_annotation_v1_025350.jpg,3,5,3,2,0
+phase2_annotation_v1_025650.jpg,3,1,1,0,2
+phase2_annotation_v1_025950.jpg,4,6,4,2,0
+phase2_annotation_v1_026550.jpg,3,2,2,0,1
+phase2_annotation_v1_027150.jpg,3,4,3,1,0
+phase2_annotation_v1_027450.jpg,3,1,1,0,2
+phase2_annotation_v1_027750.jpg,3,2,2,0,1
+phase2_annotation_v1_028050.jpg,3,4,3,1,0
+phase2_annotation_v1_028350.jpg,3,2,2,0,1
+phase2_annotation_v1_028650.jpg,3,2,1,1,2
+phase2_annotation_v1_029250.jpg,3,2,2,0,1
+phase2_annotation_v1_029850.jpg,4,5,4,1,0
+phase2_annotation_v1_030150.jpg,3,3,2,1,1
+phase2_annotation_v1_030450.jpg,3,3,2,1,1
